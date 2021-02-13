@@ -6,33 +6,54 @@ using UnityEngine;
 public class Rocket : MonoBehaviour
 {
     Rigidbody rigidBody;
+    AudioSource RocketAudioScourse;
     // Start is called before the first frame update
     void Start()
     {
         rigidBody = GetComponent<Rigidbody>();
+        RocketAudioScourse = GetComponent<AudioSource>();
+     
     }
 
     // Update is called once per frame
     void Update()
     {
-        ProcessInput();
+        Thrust();
+        Rotate();
     }
 
-    private void ProcessInput()
+    private void Thrust()
     {
-      if (Input.GetKey(KeyCode.Space))// can thrust while rotating
+        if (Input.GetKey(KeyCode.Space))// can thrust while rotating
         {
             rigidBody.AddRelativeForce(Vector3.up);
+            if (!RocketAudioScourse.isPlaying) // so we dont have the same audio source layering on top of itself.
+            {
+                RocketAudioScourse.Play();
+            }
+            else
+            {
+                RocketAudioScourse.Stop();
+            }
+
         }
+    }
+    private void Rotate()
+    {
+        rigidBody.freezeRotation = true; // take manual control of rotation
         if (Input.GetKey(KeyCode.A))
         {
-          
-            print("Roatating Left");
+
+            transform.Rotate(Vector3.forward);
         }
         if (Input.GetKey(KeyCode.D))
         {
-          
-            print("Roatating Right");
+
+            transform.Rotate(Vector3.back);
         }
+
+        rigidBody.freezeRotation = false; // resume control of rigidbody. 
     }
+
+   
 }
