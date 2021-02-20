@@ -11,6 +11,10 @@ public class Rocket : MonoBehaviour
     [SerializeField] AudioClip MainEngine;
     [SerializeField] AudioClip LevelComplete;
     [SerializeField] AudioClip EngineFailiure;
+
+    [SerializeField] ParticleSystem MainEngineParticles;
+    [SerializeField] ParticleSystem DeathParticles;
+    [SerializeField] ParticleSystem SuccessParticles;
     int SceneIndex = 0;
 
     Rigidbody rigidBody;
@@ -70,7 +74,8 @@ public class Rocket : MonoBehaviour
         state = State.Transcending;
         RocketAudioSource.Stop();
         RocketAudioSource.PlayOneShot(LevelComplete);
-        Invoke("LoadNextScene", 1f);
+        SuccessParticles.Play();
+        Invoke("LoadNextScene", 1f); //success particles play when we load the level
     }
 
     private void DeathSequence()
@@ -78,6 +83,7 @@ public class Rocket : MonoBehaviour
         state = State.Dying;
         RocketAudioSource.Stop();
         RocketAudioSource.PlayOneShot(EngineFailiure);
+        DeathParticles.Play();
         Invoke("LoadFirstLevel", 1f);
     }
 
@@ -99,17 +105,18 @@ public class Rocket : MonoBehaviour
         else
         {
             RocketAudioSource.Stop();
+            MainEngineParticles.Stop();
         }
     }
 
     private void ApplyThrust()
     {
-        rigidBody.AddRelativeForce(Vector3.up * MainThrust);
+        rigidBody.AddRelativeForce(Vector3.up * MainThrust * Time.deltaTime);
         if (!RocketAudioSource.isPlaying) // so we dont have the same audio source layering on top of itself.
         {
             RocketAudioSource.PlayOneShot(MainEngine); // this allows us to deal with multiple audio clips
         }
-
+        MainEngineParticles.Play();
 
     }
 
