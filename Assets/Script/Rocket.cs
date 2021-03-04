@@ -8,6 +8,8 @@ public class Rocket : MonoBehaviour
 {
     [SerializeField] float rcsThrust = 100f;
     [SerializeField] float MainThrust = 200f;
+    [SerializeField] float LevelLoadDelay = 2f;
+
     [SerializeField] AudioClip MainEngine;
     [SerializeField] AudioClip LevelComplete;
     [SerializeField] AudioClip EngineFailiure;
@@ -54,7 +56,7 @@ public class Rocket : MonoBehaviour
 
             case "Finish":
                 LevelCompleteSequence();
-                // parameterise time  
+                Invoke("LevelNextLevel", LevelLoadDelay); // parameterise time  
                 // invoke means at some time the loadnextscene will be called but during that time another 
                 //function can still be called. 
                 break;
@@ -84,7 +86,7 @@ public class Rocket : MonoBehaviour
         RocketAudioSource.Stop();
         RocketAudioSource.PlayOneShot(EngineFailiure);
         DeathParticles.Play();
-        Invoke("LoadFirstLevel", 1f);
+        Invoke("LoadFirstLevel", LevelLoadDelay);
     }
 
     private  void LoadNextScene()
@@ -111,7 +113,7 @@ public class Rocket : MonoBehaviour
 
     private void ApplyThrust()
     {
-        rigidBody.AddRelativeForce(Vector3.up * MainThrust * Time.deltaTime);
+        rigidBody.AddRelativeForce(Vector3.up * MainThrust );
         if (!RocketAudioSource.isPlaying) // so we dont have the same audio source layering on top of itself.
         {
             RocketAudioSource.PlayOneShot(MainEngine); // this allows us to deal with multiple audio clips
