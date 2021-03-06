@@ -23,29 +23,41 @@ public class Rocket : MonoBehaviour
     AudioSource RocketAudioSource;
     // Start is called before the first frame update
 
+    //Debug Keys
+    Collider Test_Collider;
+    bool collisionsAreDisabled = false;
+
     enum State { Alive, Dying, Transcending }
     State state = State.Alive;
     void Start()
     {
         rigidBody = GetComponent<Rigidbody>();
         RocketAudioSource = GetComponent<AudioSource>();
-     
+        Test_Collider = GetComponent<Collider>();
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (state == State.Alive)
+        if (state == State.Alive )
             // somewhere stop sound on death. 
         {
             RespondToThrustInput();
             RespondToRotateInput();
+
+            //Only responding to debug keys if debug build is on
+           
+            if (Debug.isDebugBuild)
+            {
+                DebugKeys();
+            }
         }
     }
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (state != State.Alive) { return; }
+        if (state != State.Alive ||  collisionsAreDisabled) { return; }
              // kind of like a input file stream check from C++ 
 
             switch (collision.gameObject.tag)
@@ -91,7 +103,17 @@ public class Rocket : MonoBehaviour
 
     private  void LoadNextScene()
     {
-        SceneManager.LoadScene(1); // todo allow for more than 2 levels
+        int currentSceneIndex =   SceneManager.GetActiveScene().buildIndex;
+        int nextSceneIndex = currentSceneIndex + 1;
+        int MaxSceneIndex = SceneManager.sceneCountInBuildSettings;
+
+        if(nextSceneIndex == MaxSceneIndex  )
+        {
+            nextSceneIndex = 0;
+        }
+        SceneManager.LoadScene(nextSceneIndex); // todo allow for more than 2 levels
+        
+        
     }
 
     private void LoadFirstLevel()
@@ -141,6 +163,21 @@ public class Rocket : MonoBehaviour
         }
 
         rigidBody.freezeRotation = false; // resume control of rigidbody. 
+    }
+
+    private void DebugKeys()
+    {
+        if (Input.GetKeyDown(KeyCode.L))
+        {
+            LoadNextScene();
+            //show if i pressed the key
+            Debug.Log("L key pressed");
+        }
+       if (Input.GetKeyDown(KeyCode.C))
+        {
+            collisionsAreDisabled = !collisionsAreDisabled;
+            Debug.Log("Collisions Disabled " + collisionsAreDisabled);
+        }
     }
 
    
